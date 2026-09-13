@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Survivor Tools Hub</title>
+<meta name="description" content="Community-made Survivor.io board solver, damage calculator and build optimizer.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">⚔️ Survivor Tools Hub <span>v0.1</span></div>
+  <nav>
+    <button data-page="board" class="nav active">Board Solver</button>
+    <button data-page="damage" class="nav">Damage Calculator</button>
+    <button data-page="build" class="nav">Build Optimizer</button>
+  </nav>
+</header>
+
+<main>
+<section id="board" class="page active">
+  <div class="hero"><h1>Component Board Solver</h1><p>Build a high-scoring board with a fast local heuristic solver.</p></div>
+  <div class="toolbar">
+    <label>Board width <select id="width"><option>7</option><option>9</option><option>12</option></select></label>
+    <button id="solve" class="primary">Calculate</button>
+    <button id="another">Another Layout</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h2>Components</h2>
+      <div id="components" class="components"></div>
+      <button id="addComponent">＋ Add component</button>
+    </div>
+    <div class="card">
+      <h2>Settings</h2>
+      <label class="check"><input id="fill" type="checkbox" checked> Prioritize full board fill</label>
+      <label>Priority
+        <select id="priority">
+          <option value="balanced">Balanced</option>
+          <option value="selected">Prefer selected</option>
+          <option value="strict">Strict selected</option>
+        </select>
+      </label>
+      <label>Calculation depth
+        <select id="depth"><option value="1">Short (1x)</option><option value="1.5">Medium (1.5x)</option><option value="3">Long (3x)</option></select>
+      </label>
+      <label class="check"><input id="extended" type="checkbox"> Extended search</label>
+      <div id="stats" class="stats"></div>
+    </div>
+  </div>
+  <div class="card"><h2>Best layout</h2><div id="boardGrid" class="boardGrid"></div></div>
+</section>
+
+<section id="damage" class="page">
+  <div class="hero"><h1>Damage Calculator</h1><p>Estimate damage and DPS from your current stats.</p></div>
+  <div class="grid2">
+    <div class="card formgrid">
+      <label>Attack <input id="atk" type="number" value="10000"></label>
+      <label>Skill multiplier % <input id="skill" type="number" value="100"></label>
+      <label>Crit chance % <input id="crit" type="number" value="20"></label>
+      <label>Crit multiplier % <input id="critDmg" type="number" value="200"></label>
+      <label>Attack speed / sec <input id="speed" type="number" value="1"></label>
+      <label>Bonus damage % <input id="bonus" type="number" value="0"></label>
+      <button id="calcDamage" class="primary">Calculate damage</button>
+    </div>
+    <div class="card result">
+      <h2>Estimate</h2><div id="damageResult"></div>
+      <p class="muted">This is a generic calculator. Game-specific mechanics can be added as data modules.</p>
+    </div>
+  </div>
+</section>
+
+<section id="build" class="page">
+  <div class="hero"><h1>Build Optimizer</h1><p>Compare two builds using the same damage model.</p></div>
+  <div class="grid2">
+    <div class="card">
+      <h2>Build A</h2>
+      <label>Attack <input id="aAtk" type="number" value="10000"></label>
+      <label>Crit % <input id="aCrit" type="number" value="20"></label>
+      <label>Skill % <input id="aSkill" type="number" value="100"></label>
+      <label>Bonus % <input id="aBonus" type="number" value="0"></label>
+    </div>
+    <div class="card">
+      <h2>Build B</h2>
+      <label>Attack <input id="bAtk" type="number" value="9500"></label>
+      <label>Crit % <input id="bCrit" type="number" value="30"></label>
+      <label>Skill % <input id="bSkill" type="number" value="110"></label>
+      <label>Bonus % <input id="bBonus" type="number" value="0"></label>
+    </div>
+  </div>
+  <button id="compare" class="primary">Compare builds</button>
+  <div id="comparison" class="card"></div>
+</section>
+</main>
+<footer>Community tool • Original implementation • Verify game mechanics before relying on results.</footer>
+<script src="app.js"></script>
+</body>
+</html>
