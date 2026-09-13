@@ -1,99 +1,40 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Survivor Tools Hub</title>
-<meta name="description" content="Community-made Survivor.io board solver, damage calculator and build optimizer.">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header class="topbar">
-  <div class="brand">⚔️ Survivor Tools Hub <span>v0.1</span></div>
-  <nav>
-    <button data-page="board" class="nav active">Board Solver</button>
-    <button data-page="damage" class="nav">Damage Calculator</button>
-    <button data-page="build" class="nav">Build Optimizer</button>
-  </nav>
-</header>
-
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Survivor Tools Hub</title><link rel="stylesheet" href="style.css">
+</head><body>
+<header><div class="brand">⚔️ Survivor Tools <small>v1.0</small></div>
+<nav>
+<button class="nav active" data-tab="dashboard">Dashboard</button>
+<button class="nav" data-tab="damage">Damage</button>
+<button class="nav" data-tab="gear">Gear</button>
+<button class="nav" data-tab="board">Board</button>
+<button class="nav" data-tab="compare">Compare</button>
+</nav></header>
 <main>
-<section id="board" class="page active">
-  <div class="hero"><h1>Component Board Solver</h1><p>Build a high-scoring board with a fast local heuristic solver.</p></div>
-  <div class="toolbar">
-    <label>Board width <select id="width"><option>7</option><option>9</option><option>12</option></select></label>
-    <button id="solve" class="primary">Calculate</button>
-    <button id="another">Another Layout</button>
-    <button id="reset">Reset</button>
-  </div>
-  <div class="grid2">
-    <div class="card">
-      <h2>Components</h2>
-      <div id="components" class="components"></div>
-      <button id="addComponent">＋ Add component</button>
-    </div>
-    <div class="card">
-      <h2>Settings</h2>
-      <label class="check"><input id="fill" type="checkbox" checked> Prioritize full board fill</label>
-      <label>Priority
-        <select id="priority">
-          <option value="balanced">Balanced</option>
-          <option value="selected">Prefer selected</option>
-          <option value="strict">Strict selected</option>
-        </select>
-      </label>
-      <label>Calculation depth
-        <select id="depth"><option value="1">Short (1x)</option><option value="1.5">Medium (1.5x)</option><option value="3">Long (3x)</option></select>
-      </label>
-      <label class="check"><input id="extended" type="checkbox"> Extended search</label>
-      <div id="stats" class="stats"></div>
-    </div>
-  </div>
-  <div class="card"><h2>Best layout</h2><div id="boardGrid" class="boardGrid"></div></div>
-</section>
+<section id="dashboard" class="tab active"><div class="hero"><div><p class="eyebrow">COMMUNITY TOOLKIT</p><h1>Build smarter. Test faster.</h1><p>Damage estimates, gear assumptions, board layouts and build comparisons in one place.</p></div><button id="resetAll">Reset profile</button></div>
+<div class="cards"><article><span>Total ATK</span><strong id="dashAtk">0</strong></article><article><span>Crit Rate</span><strong id="dashCrit">0%</strong></article><article><span>Skill Damage</span><strong id="dashSkill">0%</strong></article><article><span>Multiplier</span><strong id="dashMult">1.00×</strong></article></div>
+<div class="panel"><h2>Quick setup</h2><p>Enter the values shown in the game's Detailed Stats on the Damage tab. Use Gear for slot bonuses and Board for component layouts.</p><div class="notice">⚠️ Fan-made estimator. It does not claim to reproduce every live-game mechanic.</div></div></section>
 
-<section id="damage" class="page">
-  <div class="hero"><h1>Damage Calculator</h1><p>Estimate damage and DPS from your current stats.</p></div>
-  <div class="grid2">
-    <div class="card formgrid">
-      <label>Attack <input id="atk" type="number" value="10000"></label>
-      <label>Skill multiplier % <input id="skill" type="number" value="100"></label>
-      <label>Crit chance % <input id="crit" type="number" value="20"></label>
-      <label>Crit multiplier % <input id="critDmg" type="number" value="200"></label>
-      <label>Attack speed / sec <input id="speed" type="number" value="1"></label>
-      <label>Bonus damage % <input id="bonus" type="number" value="0"></label>
-      <button id="calcDamage" class="primary">Calculate damage</button>
-    </div>
-    <div class="card result">
-      <h2>Estimate</h2><div id="damageResult"></div>
-      <p class="muted">This is a generic calculator. Game-specific mechanics can be added as data modules.</p>
-    </div>
-  </div>
-</section>
+<section id="damage" class="tab"><div class="sectionhead"><div><p class="eyebrow">DAMAGE ENGINE</p><h1>Damage Calculator</h1></div><button id="copyBuild">Copy profile</button></div>
+<div class="layout"><div class="panel"><h2>Core stats</h2><div class="fields">
+<label>Total ATK<input id="atk" type="number" value="10000"></label><label>Base ATK %<input id="basePct" type="number" value="0"></label>
+<label>Gear ATK %<input id="gearPct" type="number" value="0"></label><label>Hero ATK %<input id="heroPct" type="number" value="0"></label>
+<label>Crit Rate %<input id="crit" type="number" value="20"></label><label>Crit Damage %<input id="critDmg" type="number" value="200"></label>
+<label>Skill Damage %<input id="skillDmg" type="number" value="0"></label><label>All Damage %<input id="allDmg" type="number" value="0"></label>
+<label>Vulnerability %<input id="vuln" type="number" value="0"></label><label>Boss Damage %<input id="boss" type="number" value="0"></label>
+<label>Shield Damage %<input id="shield" type="number" value="0"></label><label>To Poisoned %<input id="poison" type="number" value="0"></label>
+<label>To Weakened %<input id="weakened" type="number" value="0"></label><label>To Chilled %<input id="chilled" type="number" value="0"></label>
+<label>Attack rate / sec<input id="rate" type="number" step=".01" value="1"></label><label>Weapon multiplier %<input id="weaponPct" type="number" value="100"></label>
+</div><div class="row"><button class="primary" id="calc">Calculate</button><button id="save">Save profile</button></div></div>
+<div class="panel"><h2>Result</h2><div id="damageResult"></div><details><summary>Model</summary><p>Adjusted ATK × weapon multiplier × damage bonuses × expected crit. Skill-adjusted DPS is shown separately. Unrepresented mechanics are not guessed.</p></details></div></div></section>
 
-<section id="build" class="page">
-  <div class="hero"><h1>Build Optimizer</h1><p>Compare two builds using the same damage model.</p></div>
-  <div class="grid2">
-    <div class="card">
-      <h2>Build A</h2>
-      <label>Attack <input id="aAtk" type="number" value="10000"></label>
-      <label>Crit % <input id="aCrit" type="number" value="20"></label>
-      <label>Skill % <input id="aSkill" type="number" value="100"></label>
-      <label>Bonus % <input id="aBonus" type="number" value="0"></label>
-    </div>
-    <div class="card">
-      <h2>Build B</h2>
-      <label>Attack <input id="bAtk" type="number" value="9500"></label>
-      <label>Crit % <input id="bCrit" type="number" value="30"></label>
-      <label>Skill % <input id="bSkill" type="number" value="110"></label>
-      <label>Bonus % <input id="bBonus" type="number" value="0"></label>
-    </div>
-  </div>
-  <button id="compare" class="primary">Compare builds</button>
-  <div id="comparison" class="card"></div>
-</section>
-</main>
-<footer>Community tool • Original implementation • Verify game mechanics before relying on results.</footer>
-<script src="app.js"></script>
-</body>
-</html>
+<section id="gear" class="tab"><div class="sectionhead"><div><p class="eyebrow">BUILD INPUT</p><h1>Gear & modifiers</h1></div></div><div class="panel"><p class="muted">Six equipment slots. Enter bonuses shown by the current build. Verify exact live values in-game.</p><div id="gearGrid" class="geargrid"></div><div class="row"><button class="primary" id="applyGear">Apply ATK bonuses</button><button id="clearGear">Clear</button></div></div></section>
+
+<section id="board" class="tab"><div class="sectionhead"><div><p class="eyebrow">COMPONENT OPTIMIZER</p><h1>Board Solver</h1><p>Tier points first, then rows and fewer holes.</p></div></div>
+<div class="panel"><div class="toolbar"><label>Width<select id="boardWidth"><option>7</option><option>9</option><option>12</option></select></label><label>Search<select id="boardBudget"><option value="2500">Short</option><option value="7000">Medium</option><option value="15000">Long</option></select></label><label class="inline"><input id="fillPriority" type="checkbox" checked> Fill board</label><label class="inline"><input id="strictPriority" type="checkbox"> Prefer selected</label><button class="primary" id="solve">Calculate</button><button id="another">Another layout</button></div><div id="pieces" class="components"></div><button id="addPiece">＋ Add component</button></div>
+<div class="panel"><div id="boardStats" class="metrics"></div><div id="board" class="board"></div></div></section>
+
+<section id="compare" class="tab"><div class="sectionhead"><div><p class="eyebrow">DECISION TOOL</p><h1>Compare builds</h1></div></div><div class="layout"><div class="panel"><h2>Build A</h2><div id="aFields" class="fields"></div></div><div class="panel"><h2>Build B</h2><div id="bFields" class="fields"></div></div></div><button class="primary" id="compareBtn">Compare</button><div class="panel" id="compareResult"></div></section>
+</main><footer>Fan-made tool • Original implementation • Estimates unless verified against the current game.</footer>
+<script src="app.js"></script></body></html>

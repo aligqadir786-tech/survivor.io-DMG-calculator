@@ -1,56 +1,32 @@
-const $=s=>document.querySelector(s);
-document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#"+b.dataset.page).classList.add("active")});
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],num=id=>Math.max(0,Number($(id).value)||0);
+function fmt(n){return new Intl.NumberFormat("en-US",{maximumFractionDigits:2}).format(n)}
+$$(".nav").forEach(b=>b.onclick=()=>{$$(".nav").forEach(x=>x.classList.remove("active"));$$(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#"+b.dataset.tab).classList.add("active")});
 
-const shapes=[[[1,1],[1,1]],[[1,1,1]],[[1,0],[1,1]],[[1,1,1],[0,1,0]],[[1,1,0],[0,1,1]]];
-let comps=[{name:"Component A",tier:3,shape:0,selected:false},{name:"Component B",tier:2,shape:1,selected:false},{name:"Component C",tier:1,shape:2,selected:false}];
-function renderComponents(){
-  $("#components").innerHTML="";
-  comps.forEach((c,i)=>{
-    const d=document.createElement("div");d.className="component";
-    d.innerHTML=`<input value="${c.name}"><select><option value="3">Gold</option><option value="2">Purple</option><option value="1">Blue</option></select><button title="rotate">↻</button><input type="checkbox" title="priority">`;
-    d.children[1].value=c.tier;
-    d.children[2].onclick=()=>{c.shape=(c.shape+1)%shapes.length;solve()};
-    d.children[3].checked=c.selected;
-    d.children[3].onchange=e=>c.selected=e.target.checked;
-    d.children[0].oninput=e=>c.name=e.target.value;
-    d.children[1].onchange=e=>c.tier=+e.target.value;
-    $("#components").appendChild(d);
-  });
-}
-$("#addComponent").onclick=()=>{comps.push({name:"Component "+String.fromCharCode(65+comps.length),tier:1,shape:Math.floor(Math.random()*shapes.length),selected:false});renderComponents();};
-$("#reset").onclick=()=>{comps=[{name:"Component A",tier:3,shape:0,selected:false},{name:"Component B",tier:2,shape:1,selected:false},{name:"Component C",tier:1,shape:2,selected:false}];renderComponents();solve()};
-function rotate(m){return m[0].map((_,i)=>m.map(r=>r[i]).reverse())}
-function orientations(m){let out=[],x=m;for(let k=0;k<4;k++){let key=JSON.stringify(x);if(!out.some(v=>JSON.stringify(v)==key))out.push(x);x=rotate(x)}return out}
-function solve(){
- const w=+$("#width").value,h=8,grid=Array.from({length:h},()=>Array(w).fill(null));
- let placements=0,states=0,start=performance.now();
- const ordered=[...comps].sort((a,b)=>b.tier-a.tier);
- function can(m,r,c){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x]&&(!grid[r+y]||grid[r+y][c+x]))return false;return true}
- function put(m,r,c,v){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x])grid[r+y][c+x]=v}
- for(const c of ordered){
-   let best=null,bestScore=-1;
-   for(const m of orientations(shapes[c.shape])) for(let r=0;r<h-m.length+1;r++) for(let col=0;col<w-m[0].length+1;col++){
-     placements++; if(!can(m,r,col))continue;
-     let cells=m.flat().filter(Boolean).length, score=cells*c.tier*100;
-     if($("#fill").checked) score+=((w*h)-(grid.flat().filter(Boolean).length+cells))*0.01;
-     if(c.selected)score+=500;
-     if(score>bestScore){bestScore=score;best=[m,r,col]}
-   }
-   if(best){put(...best,c.name);states++}
- }
- let filled=grid.flat().filter(Boolean).length, lines=grid.filter(row=>row.every(Boolean)).length;
- $("#boardGrid").style.gridTemplateColumns=`repeat(${w},minmax(26px,1fr))`;
- $("#boardGrid").innerHTML=grid.flat().map(v=>`<div class="cell ${v?"filled":""}" title="${v||"Empty"}">${v?v.replace("Component ","C"):""}</div>`).join("");
- $("#stats").innerHTML=`<b>Total points</b> ${ordered.reduce((s,c)=>s+c.tier*grid.flat().filter(v=>v===c.name).length,0)}<br><b>Lines completed</b> ${lines}<br><b>Cells filled</b> ${filled}<br><b>Cells empty</b> ${w*h-filled}<br><b>Placements searched</b> ${placements}<br><b>States searched</b> ${states}<br><b>Solve time</b> ${(performance.now()-start).toFixed(2)} ms`;
-}
-$("#solve").onclick=solve;$("#another").onclick=()=>{comps.forEach(c=>c.shape=(c.shape+1+Math.floor(Math.random()*3))%shapes.length);solve()};$("#width").onchange=solve;renderComponents();solve();
+const gear=[["weapon","Weapon"],["necklace","Necklace"],["gloves","Gloves"],["armor","Armor"],["belt","Belt"],["boots","Boots"]];
+$("#gearGrid").innerHTML=gear.map(([id,n])=>`<div class="gearitem"><h3>${n}</h3><label>ATK %<input id="g_${id}" type="number" value="0"></label><label>Damage/Skill %<input id="s_${id}" type="number" value="0"></label><label>Notes<input id="n_${id}" placeholder="Optional"></label></div>`).join("");
 
-function damage(atk,skill,crit,critDmg,bonus){let base=atk*(skill/100)*(1+bonus/100), expected=base*((1-crit/100)+(crit/100)*(critDmg/100));return {base,expected}}
-$("#calcDamage").onclick=()=>{
- const r=damage(+$("#atk").value,+$("#skill").value,+$("#crit").value,+$("#critDmg").value,+$("#bonus").value);
- const speed=+$("#speed").value;
- $("#damageResult").innerHTML=`<div class="metric"><span>Base hit</span><b>${r.base.toFixed(0)}</b></div><div class="metric"><span>Expected hit</span><b>${r.expected.toFixed(0)}</b></div><div class="metric"><span>Estimated DPS</span><b>${(r.expected*speed).toFixed(0)}</b></div>`;
-};
-function build(id){return {atk:+$("#"+id+"Atk").value,crit:+$("#"+id+"Crit").value,skill:+$("#"+id+"Skill").value,bonus:+$("#"+id+"Bonus").value}}
-function score(b){return damage(b.atk,b.skill,b.crit,200,b.bonus).expected}
-$("#compare").onclick=()=>{let a=score(build("a")),b=score(build("b"));$("#comparison").innerHTML=`<div class="metric"><span>Build A</span><b>${a.toFixed(0)}</b></div><div class="metric"><span>Build B</span><b>${b.toFixed(0)}</b></div><div class="winner">${a>b?"🏆 Build A wins":"🏆 Build B wins"} by ${Math.abs(a-b).toFixed(0)} expected damage</div>`};
+const shapes=[["Square",[[1,1],[1,1]]],["Line",[[1,1,1]]],["L",[[1,0],[1,1]]],["T",[[1,1,1],[0,1,0]]],["Z",[[1,1,0],[0,1,1]]],["Long",[[1,1,1,1]]]];
+let pieces=[{name:"Component A",tier:3,shape:0,selected:false},{name:"Component B",tier:2,shape:1,selected:false},{name:"Component C",tier:1,shape:2,selected:false}];
+function renderPieces(){$("#pieces").innerHTML=pieces.map((p,i)=>`<div class="piece"><input class="pname" data-i="${i}" value="${p.name}"><select class="ptier" data-i="${i}"><option value="3">Gold • 3</option><option value="2">Purple • 2</option><option value="1">Blue • 1</option></select><select class="pshape" data-i="${i}">${shapes.map((s,j)=>`<option value="${j}">${s[0]}</option>`).join("")}</select><button class="rot" data-i="${i}">↻</button><input class="pselect" data-i="${i}" type="checkbox"></div>`).join("");
+$$(".ptier").forEach(x=>x.value=pieces[x.dataset.i].tier);$$(".pshape").forEach(x=>x.value=pieces[x.dataset.i].shape);$$(".pselect").forEach(x=>{x.checked=pieces[x.dataset.i].selected;x.onchange=()=>pieces[x.dataset.i].selected=x.checked});$$(".pname").forEach(x=>x.oninput=()=>pieces[x.dataset.i].name=x.value);$$(".ptier").forEach(x=>x.onchange=()=>pieces[x.dataset.i].tier=+x.value);$$(".pshape").forEach(x=>x.onchange=()=>pieces[x.dataset.i].shape=+x.value);$$(".rot").forEach(x=>x.onclick=()=>{pieces[x.dataset.i].shape=(pieces[x.dataset.i].shape+1)%shapes.length;renderPieces();solveBoard()})}
+$("#addPiece").onclick=()=>{pieces.push({name:"Component "+String.fromCharCode(65+pieces.length),tier:1,shape:Math.floor(Math.random()*shapes.length),selected:false});renderPieces()};
+function rot(m){return m[0].map((_,i)=>m.map(r=>r[i]).reverse())}function ors(m){let a=[],x=m;for(let i=0;i<4;i++){let k=JSON.stringify(x);if(!a.some(z=>JSON.stringify(z)==k))a.push(x);x=rot(x)}return a}
+function solveBoard(){const w=+$("#boardWidth").value,h=8,budget=+$("#boardBudget").value,g=Array.from({length:h},()=>Array(w).fill(null));let nodes=0,best=null,bestScore=-1e9;const ps=[...pieces].sort((a,b)=>b.tier-a.tier);
+function can(m,r,c){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x]&&(r+y>=h||c+x>=w||g[r+y][c+x]))return false;return true}
+function put(m,r,c,v){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x])g[r+y][c+x]=v}
+function score(){let cells=g.flat().filter(Boolean).length,rows=g.filter(r=>r.every(Boolean)).length,points=g.flat().reduce((s,v)=>s+(v?v.tier:0),0),holes=0;for(let r=0;r<h;r++){let seen=false;for(let c=0;c<w;c++){if(g[r][c])seen=true;else if(seen)holes++}}return points*100+rows*50+(cells*.1)-holes*2}
+function search(i){if(++nodes>budget)return;if(i>=ps.length){let s=score();if(s>bestScore){bestScore=s;best=g.map(r=>r.slice())}return}let p=ps[i],placed=false;for(const m of ors(shapes[p.shape][1]))for(let r=0;r<=h-m.length;r++)for(let c=0;c<=w-m[0].length;c++)if(can(m,r,c)){placed=true;put(m,r,c,p);search(i+1);put(m,r,c,null)}if(!placed)search(i+1)}
+search(0);if(!best)best=g;const cells=best.flat().filter(Boolean).length,rows=best.filter(r=>r.every(Boolean)).length;$("#board").style.gridTemplateColumns=`repeat(${w},minmax(27px,1fr))`;$("#board").innerHTML=best.flat().map(v=>`<div class="cell ${v?"fill":""}">${v?v.name.replace("Component ","C"):""}</div>`).join("");$("#boardStats").innerHTML=`<div class="metric"><span>Score</span><b>${fmt(bestScore)}</b></div><div class="metric"><span>Rows</span><b>${rows}</b></div><div class="metric"><span>Filled</span><b>${cells}/${w*h}</b></div><div class="metric"><span>Empty</span><b>${w*h-cells}</b></div><div class="metric"><span>Search nodes</span><b>${fmt(nodes)}</b></div>`}
+$("#solve").onclick=solveBoard;$("#another").onclick=()=>{pieces=pieces.map(p=>({...p,shape:(p.shape+1+Math.floor(Math.random()*3))%shapes.length}));renderPieces();solveBoard()};$("#boardWidth").onchange=solveBoard;renderPieces();solveBoard();
+
+function stats(){return{atk:num("#atk"),basePct:num("#basePct"),gearPct:num("#gearPct"),heroPct:num("#heroPct"),crit:num("#crit"),critDmg:num("#critDmg"),skillDmg:num("#skillDmg"),allDmg:num("#allDmg"),vuln:num("#vuln"),boss:num("#boss"),rate:num("#rate"),weaponPct:num("#weaponPct")}}
+function model(s){let atk=s.atk*(1+(s.basePct+s.gearPct+s.heroPct)/100),bonus=(1+s.allDmg/100)*(1+s.vuln/100)*(1+s.boss/100),crit=1+(Math.min(s.crit,300)/100)*Math.max(0,s.critDmg/100-1),hit=atk*(s.weaponPct/100)*bonus*crit;return{atk,hit,dps:hit*s.rate,skillDps:hit*(1+s.skillDmg/100)*s.rate,mult:hit/Math.max(1,s.atk)}}
+function renderDamage(){let r=model(stats());$("#damageResult").innerHTML=`<div class="metrics"><div class="metric"><span>Adjusted ATK</span><b>${fmt(r.atk)}</b></div><div class="metric"><span>Expected hit</span><b>${fmt(r.hit)}</b></div><div class="metric"><span>Estimated DPS</span><b>${fmt(r.dps)}</b></div><div class="metric"><span>Skill DPS</span><b>${fmt(r.skillDps)}</b></div><div class="metric"><span>Multiplier</span><b>${r.mult.toFixed(3)}×</b></div></div>`;$("#dashAtk").textContent=fmt(r.atk);$("#dashCrit").textContent=num("#crit")+"%";$("#dashSkill").textContent=num("#skillDmg")+"%";$("#dashMult").textContent=r.mult.toFixed(2)+"×"}
+$("#calc").onclick=renderDamage;$$("#damage input").forEach(x=>x.addEventListener("input",renderDamage));$("#save").onclick=()=>{localStorage.setItem("survivorProfile",JSON.stringify(stats()));alert("Profile saved on this device.")};$("#copyBuild").onclick=async()=>{await navigator.clipboard.writeText(JSON.stringify(stats()));alert("Profile JSON copied.")};$("#resetAll").onclick=()=>{localStorage.removeItem("survivorProfile");location.reload()};
+$("#applyGear").onclick=()=>{$("#gearPct").value=gear.reduce((s,[id])=>s+num("#g_"+id),0);renderDamage();alert("Gear ATK applied.")};$("#clearGear").onclick=()=>gear.forEach(([id])=>{$("#g_"+id).value=0;$("#s_"+id).value=0;$("#n_"+id).value=""});
+
+const compareKeys=[["atk","ATK",10000],["crit","Crit Rate %",20],["critDmg","Crit Damage %",200],["skillDmg","Skill Damage %",0],["allDmg","All Damage %",0],["vuln","Vulnerability %",0],["boss","Boss Damage %",0]];
+function makeFields(p){$("#"+p+"Fields").innerHTML=compareKeys.map(([k,n,v])=>`<label>${n}<input id="${p}_${k}" type="number" value="${v}"></label>`).join("")}
+makeFields("a");makeFields("b");function getBuild(p){let s={atk:+$(`#${p}_atk`).value||0,crit:+$(`#${p}_crit`).value||0,critDmg:+$(`#${p}_critDmg`).value||0,skillDmg:+$(`#${p}_skillDmg`).value||0,allDmg:+$(`#${p}_allDmg`).value||0,vuln:+$(`#${p}_vuln`).value||0,boss:+$(`#${p}_boss`).value||0,basePct:0,gearPct:0,heroPct:0,rate:1,weaponPct:100};return model(s)}
+$("#compareBtn").onclick=()=>{let a=getBuild("a"),b=getBuild("b"),d=Math.abs(a.dps-b.dps),w=a.dps===b.dps?"Tie":a.dps>b.dps?"Build A":"Build B";$("#compareResult").innerHTML=`<div class="resultbig">${w==="Tie"?"⚖️ Tie":"🏆 "+w}</div><p>Estimated DPS: <b>A ${fmt(a.dps)}</b> vs <b>B ${fmt(b.dps)}</b></p><p>Difference: ${fmt(d)} DPS</p>`};
+let saved=localStorage.getItem("survivorProfile");if(saved)try{let s=JSON.parse(saved);Object.entries(s).forEach(([k,v])=>{if($("#"+k))$("#"+k).value=v})}catch(e){}renderDamage();
