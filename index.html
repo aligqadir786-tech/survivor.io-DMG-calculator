@@ -1,40 +1,122 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Survivor Tools Hub</title><link rel="stylesheet" href="style.css">
-</head><body>
-<header><div class="brand">⚔️ Survivor Tools <small>v1.0</small></div>
-<nav>
-<button class="nav active" data-tab="dashboard">Dashboard</button>
-<button class="nav" data-tab="damage">Damage</button>
-<button class="nav" data-tab="gear">Gear</button>
-<button class="nav" data-tab="board">Board</button>
-<button class="nav" data-tab="compare">Compare</button>
-</nav></header>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0d12">
+<meta name="description" content="Survivor.io DMG Calculator v2 - equipment, survivors, pets, mounts, turfs and crit reference.">
+<title>Survivor.io DMG Calculator v2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">⚔</span><div><strong>Survivor.io</strong><small>DMG CALCULATOR v2</small></div></div>
+  <button class="menu-btn" id="menuBtn">☰</button>
+  <nav id="nav">
+    <a href="#calculator">Calculator</a><a href="#equipment">Equipment</a><a href="#survivors">Survivors</a>
+    <a href="#pets">Pets</a><a href="#mounts">Mounts</a><a href="#turfs">Turfs</a><a href="#sources">Sources</a>
+  </nav>
+</header>
+
 <main>
-<section id="dashboard" class="tab active"><div class="hero"><div><p class="eyebrow">COMMUNITY TOOLKIT</p><h1>Build smarter. Test faster.</h1><p>Damage estimates, gear assumptions, board layouts and build comparisons in one place.</p></div><button id="resetAll">Reset profile</button></div>
-<div class="cards"><article><span>Total ATK</span><strong id="dashAtk">0</strong></article><article><span>Crit Rate</span><strong id="dashCrit">0%</strong></article><article><span>Skill Damage</span><strong id="dashSkill">0%</strong></article><article><span>Multiplier</span><strong id="dashMult">1.00×</strong></article></div>
-<div class="panel"><h2>Quick setup</h2><p>Enter the values shown in the game's Detailed Stats on the Damage tab. Use Gear for slot bonuses and Board for component layouts.</p><div class="notice">⚠️ Fan-made estimator. It does not claim to reproduce every live-game mechanic.</div></div></section>
+<section class="hero">
+  <div>
+    <span class="pill">V2 • OFFLINE / GITHUB PAGES READY</span>
+    <h1>Damage planning without the spreadsheet-induced suffering.</h1>
+    <p>Equipment, survivors, pets, mounts, turf bonuses, crit sources and fusion milestones in one mobile-friendly reference.</p>
+    <div class="hero-actions"><a class="btn primary" href="#calculator">Open calculator</a><a class="btn" href="#sources">View supplied sheets</a></div>
+  </div>
+  <div class="hero-card">
+    <div class="stat"><b id="critRateHero">0%</b><span>Crit rate bonus</span></div>
+    <div class="stat"><b id="critDmgHero">0%</b><span>Crit damage bonus</span></div>
+    <div class="stat"><b>54</b><span>Chaos fusion milestone shown</span></div>
+  </div>
+</section>
 
-<section id="damage" class="tab"><div class="sectionhead"><div><p class="eyebrow">DAMAGE ENGINE</p><h1>Damage Calculator</h1></div><button id="copyBuild">Copy profile</button></div>
-<div class="layout"><div class="panel"><h2>Core stats</h2><div class="fields">
-<label>Total ATK<input id="atk" type="number" value="10000"></label><label>Base ATK %<input id="basePct" type="number" value="0"></label>
-<label>Gear ATK %<input id="gearPct" type="number" value="0"></label><label>Hero ATK %<input id="heroPct" type="number" value="0"></label>
-<label>Crit Rate %<input id="crit" type="number" value="20"></label><label>Crit Damage %<input id="critDmg" type="number" value="200"></label>
-<label>Skill Damage %<input id="skillDmg" type="number" value="0"></label><label>All Damage %<input id="allDmg" type="number" value="0"></label>
-<label>Vulnerability %<input id="vuln" type="number" value="0"></label><label>Boss Damage %<input id="boss" type="number" value="0"></label>
-<label>Shield Damage %<input id="shield" type="number" value="0"></label><label>To Poisoned %<input id="poison" type="number" value="0"></label>
-<label>To Weakened %<input id="weakened" type="number" value="0"></label><label>To Chilled %<input id="chilled" type="number" value="0"></label>
-<label>Attack rate / sec<input id="rate" type="number" step=".01" value="1"></label><label>Weapon multiplier %<input id="weaponPct" type="number" value="100"></label>
-</div><div class="row"><button class="primary" id="calc">Calculate</button><button id="save">Save profile</button></div></div>
-<div class="panel"><h2>Result</h2><div id="damageResult"></div><details><summary>Model</summary><p>Adjusted ATK × weapon multiplier × damage bonuses × expected crit. Skill-adjusted DPS is shown separately. Unrepresented mechanics are not guessed.</p></details></div></div></section>
+<section id="calculator" class="section">
+  <div class="section-head"><div><span class="eyebrow">CALCULATOR</span><h2>Crit & build estimator</h2></div><span class="hint">Numbers follow the supplied reference sheets.</span></div>
+  <div class="grid two">
+    <div class="panel">
+      <h3>Collectible sources</h3>
+      <label>Crit Damage collectibles <input id="critDmgCount" type="number" min="0" max="30" value="0"></label>
+      <p class="muted">Reference sheet: each listed collectible gives +10% crit damage.</p>
+      <label>Crit Rate collectibles <input id="critRateCount" type="number" min="0" max="30" value="0"></label>
+      <p class="muted">Reference sheet: each listed collectible gives +10% crit rate.</p>
+      <div class="result-row"><span>Estimated crit damage bonus</span><strong id="critDmgResult">0%</strong></div>
+      <div class="result-row"><span>Estimated crit rate bonus</span><strong id="critRateResult">0%</strong></div>
+    </div>
+    <div class="panel">
+      <h3>Survivor / build checklist</h3>
+      <div class="checks">
+        <label><input type="checkbox" data-bonus="5"> Survivor level bonus</label>
+        <label><input type="checkbox" data-bonus="10"> Equipment grade skill</label>
+        <label><input type="checkbox" data-bonus="5"> Pet awakening contribution</label>
+        <label><input type="checkbox" data-bonus="5"> Mount skill contribution</label>
+      </div>
+      <div class="big-number" id="buildScore">0%</div>
+      <p class="muted">This is a planning score, not a claim that all bonuses stack in-game. Humans invented rounding; games invented exceptions.</p>
+    </div>
+  </div>
+</section>
 
-<section id="gear" class="tab"><div class="sectionhead"><div><p class="eyebrow">BUILD INPUT</p><h1>Gear & modifiers</h1></div></div><div class="panel"><p class="muted">Six equipment slots. Enter bonuses shown by the current build. Verify exact live values in-game.</p><div id="gearGrid" class="geargrid"></div><div class="row"><button class="primary" id="applyGear">Apply ATK bonuses</button><button id="clearGear">Clear</button></div></div></section>
+<section id="equipment" class="section">
+  <div class="section-head"><div><span class="eyebrow">EQUIPMENT</span><h2>Equipment & fusion reference</h2></div></div>
+  <div class="cards" id="equipmentCards"></div>
+  <div class="panel table-wrap">
+    <h3>Chaos Fusion Power milestones</h3>
+    <table><thead><tr><th>Power</th><th>Reference note</th></tr></thead><tbody>
+      <tr><td>3★</td><td>First listed chaos-fusion milestone in supplied sheet</td></tr>
+      <tr><td>6★</td><td>Higher fusion milestone</td></tr>
+      <tr><td>12★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>15★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>18★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>21★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>24★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>30★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>33★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>36★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>39★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>42★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>45★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>48★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>51★</td><td>Additional fusion milestone</td></tr>
+      <tr><td>54★</td><td>Highest milestone visible in supplied sheet</td></tr>
+    </tbody></table>
+  </div>
+</section>
 
-<section id="board" class="tab"><div class="sectionhead"><div><p class="eyebrow">COMPONENT OPTIMIZER</p><h1>Board Solver</h1><p>Tier points first, then rows and fewer holes.</p></div></div>
-<div class="panel"><div class="toolbar"><label>Width<select id="boardWidth"><option>7</option><option>9</option><option>12</option></select></label><label>Search<select id="boardBudget"><option value="2500">Short</option><option value="7000">Medium</option><option value="15000">Long</option></select></label><label class="inline"><input id="fillPriority" type="checkbox" checked> Fill board</label><label class="inline"><input id="strictPriority" type="checkbox"> Prefer selected</label><button class="primary" id="solve">Calculate</button><button id="another">Another layout</button></div><div id="pieces" class="components"></div><button id="addPiece">＋ Add component</button></div>
-<div class="panel"><div id="boardStats" class="metrics"></div><div id="board" class="board"></div></div></section>
+<section id="survivors" class="section">
+  <div class="section-head"><div><span class="eyebrow">SURVIVORS</span><h2>Survivor gallery</h2></div><input class="search" id="survivorSearch" placeholder="Filter survivor cards…"></div>
+  <div class="gallery" id="survivorGallery"></div>
+  <div class="notice">The supplied survivor sheets contain the detailed level-up, upgrade and awakening text. The site keeps the original sheets below so no tiny text is accidentally “corrected” by guesswork.</div>
+</section>
 
-<section id="compare" class="tab"><div class="sectionhead"><div><p class="eyebrow">DECISION TOOL</p><h1>Compare builds</h1></div></div><div class="layout"><div class="panel"><h2>Build A</h2><div id="aFields" class="fields"></div></div><div class="panel"><h2>Build B</h2><div id="bFields" class="fields"></div></div></div><button class="primary" id="compareBtn">Compare</button><div class="panel" id="compareResult"></div></section>
-</main><footer>Fan-made tool • Original implementation • Estimates unless verified against the current game.</footer>
-<script src="app.js"></script></body></html>
+<section id="pets" class="section">
+  <div class="section-head"><div><span class="eyebrow">XENO PETS</span><h2>Pets</h2></div></div>
+  <div class="gallery" id="petGallery"></div>
+</section>
+
+<section id="mounts" class="section">
+  <div class="section-head"><div><span class="eyebrow">MOUNTS</span><h2>Mounts</h2></div></div>
+  <div class="gallery" id="mountGallery"></div>
+</section>
+
+<section id="turfs" class="section">
+  <div class="section-head"><div><span class="eyebrow">TURFS</span><h2>Turf reference</h2></div></div>
+  <div class="panel">
+    <p>The supplied turf sheet shows LV.1 through LV.6, with bonuses including Survivor HP/ATK, equipment HP/ATK, quick earnings, Lunar Mine boss damage and clan-shop essence. The original sheet is preserved below for exact values.</p>
+    <div class="tag-row"><span>LV.1</span><span>LV.2</span><span>LV.3</span><span>LV.4</span><span>LV.5</span><span>LV.6</span></div>
+  </div>
+</section>
+
+<section id="sources" class="section">
+  <div class="section-head"><div><span class="eyebrow">REFERENCE SHEETS</span><h2>Original supplied data</h2></div></div>
+  <p class="muted">These are the exact images supplied for this version. They are intentionally included because some values are too dense for reliable OCR. No mysterious AI arithmetic was allowed to rewrite the game.</p>
+  <div class="sheet-grid" id="sheetGrid"></div>
+</section>
+</main>
+
+<footer><span>Survivor.io DMG Calculator v2</span><span>Static • no server • GitHub Pages compatible</span></footer>
+<script src="app.js"></script>
+</body>
+</html>

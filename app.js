@@ -1,32 +1,69 @@
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],num=id=>Math.max(0,Number($(id).value)||0);
-function fmt(n){return new Intl.NumberFormat("en-US",{maximumFractionDigits:2}).format(n)}
-$$(".nav").forEach(b=>b.onclick=()=>{$$(".nav").forEach(x=>x.classList.remove("active"));$$(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#"+b.dataset.tab).classList.add("active")});
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+$("#menuBtn").onclick=()=>document.body.classList.toggle("nav-open");
 
-const gear=[["weapon","Weapon"],["necklace","Necklace"],["gloves","Gloves"],["armor","Armor"],["belt","Belt"],["boots","Boots"]];
-$("#gearGrid").innerHTML=gear.map(([id,n])=>`<div class="gearitem"><h3>${n}</h3><label>ATK %<input id="g_${id}" type="number" value="0"></label><label>Damage/Skill %<input id="s_${id}" type="number" value="0"></label><label>Notes<input id="n_${id}" placeholder="Optional"></label></div>`).join("");
+const pets=[
+["pet-01-chicken.jpg","Ruffled Rush","Feather shot / Rain of Fury"],
+["pet-02-hedgehog.jpg","Chevalier's Edge","Woodsword Wave / Darkness Unleashed"],
+["pet-03-pink.jpg","Neurotoxin","Neurotoxin Aura / Puffer Pop"],
+["pet-04-penguin.jpg","Snowball Expert","Snowballs / Emergency Freeze"],
+["pet-05-bear.jpg","Dual-Color Nut","Nutplosion / Giant Killer"],
+["pet-06-cat.jpg","Sugar Starter","Riccball Rampage / Cola"],
+["pet-07-umbra.jpg","Umbral Edict","Nightfall Orb / Evernight Crown"]
+];
+const mounts=[
+["mount-01-disc.jpg","Volta Disc","Laceration / Shock"],
+["mount-02-thorn.jpg","Thorn Shield","Shockwave / Shield Resonance"],
+["mount-03-nether.jpg","Nethersoul Domain","Netherflame / Chilled targets"],
+["mount-04-iron.jpg","Iron Resolve","Energy stacks / collision damage"]
+];
+const eq=[
+["equipment-01.jpg","Equipment slot 01","Grade skills • Eternal / Void / Chaos reference"],
+["equipment-02.jpg","Equipment slot 02","Grade skills • fusion reference"],
+["equipment-03.jpg","Equipment slot 03","Grade skills • fusion reference"],
+["equipment-04.jpg","Equipment slot 04","Grade skills • fusion reference"],
+["equipment-05.jpg","Equipment slot 05","Grade skills • fusion reference"],
+["equipment-06.jpg","Equipment slot 06","Grade skills • fusion reference"],
+["equipment-07.jpg","Equipment slot 07","Grade skills • fusion reference"]
+];
+function render(list,id){
+  $(id).innerHTML=list.map(x=>`<article class="card"><img src="assets/icons/${x[0]}" alt=""><div class="card-body"><h3>${x[1]}</h3><p>${x[2]}</p></div></article>`).join("");
+}
+render(pets,"#petGallery");render(mounts,"#mountGallery");render(eq,"#equipmentCards");
 
-const shapes=[["Square",[[1,1],[1,1]]],["Line",[[1,1,1]]],["L",[[1,0],[1,1]]],["T",[[1,1,1],[0,1,0]]],["Z",[[1,1,0],[0,1,1]]],["Long",[[1,1,1,1]]]];
-let pieces=[{name:"Component A",tier:3,shape:0,selected:false},{name:"Component B",tier:2,shape:1,selected:false},{name:"Component C",tier:1,shape:2,selected:false}];
-function renderPieces(){$("#pieces").innerHTML=pieces.map((p,i)=>`<div class="piece"><input class="pname" data-i="${i}" value="${p.name}"><select class="ptier" data-i="${i}"><option value="3">Gold • 3</option><option value="2">Purple • 2</option><option value="1">Blue • 1</option></select><select class="pshape" data-i="${i}">${shapes.map((s,j)=>`<option value="${j}">${s[0]}</option>`).join("")}</select><button class="rot" data-i="${i}">↻</button><input class="pselect" data-i="${i}" type="checkbox"></div>`).join("");
-$$(".ptier").forEach(x=>x.value=pieces[x.dataset.i].tier);$$(".pshape").forEach(x=>x.value=pieces[x.dataset.i].shape);$$(".pselect").forEach(x=>{x.checked=pieces[x.dataset.i].selected;x.onchange=()=>pieces[x.dataset.i].selected=x.checked});$$(".pname").forEach(x=>x.oninput=()=>pieces[x.dataset.i].name=x.value);$$(".ptier").forEach(x=>x.onchange=()=>pieces[x.dataset.i].tier=+x.value);$$(".pshape").forEach(x=>x.onchange=()=>pieces[x.dataset.i].shape=+x.value);$$(".rot").forEach(x=>x.onclick=()=>{pieces[x.dataset.i].shape=(pieces[x.dataset.i].shape+1)%shapes.length;renderPieces();solveBoard()})}
-$("#addPiece").onclick=()=>{pieces.push({name:"Component "+String.fromCharCode(65+pieces.length),tier:1,shape:Math.floor(Math.random()*shapes.length),selected:false});renderPieces()};
-function rot(m){return m[0].map((_,i)=>m.map(r=>r[i]).reverse())}function ors(m){let a=[],x=m;for(let i=0;i<4;i++){let k=JSON.stringify(x);if(!a.some(z=>JSON.stringify(z)==k))a.push(x);x=rot(x)}return a}
-function solveBoard(){const w=+$("#boardWidth").value,h=8,budget=+$("#boardBudget").value,g=Array.from({length:h},()=>Array(w).fill(null));let nodes=0,best=null,bestScore=-1e9;const ps=[...pieces].sort((a,b)=>b.tier-a.tier);
-function can(m,r,c){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x]&&(r+y>=h||c+x>=w||g[r+y][c+x]))return false;return true}
-function put(m,r,c,v){for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++)if(m[y][x])g[r+y][c+x]=v}
-function score(){let cells=g.flat().filter(Boolean).length,rows=g.filter(r=>r.every(Boolean)).length,points=g.flat().reduce((s,v)=>s+(v?v.tier:0),0),holes=0;for(let r=0;r<h;r++){let seen=false;for(let c=0;c<w;c++){if(g[r][c])seen=true;else if(seen)holes++}}return points*100+rows*50+(cells*.1)-holes*2}
-function search(i){if(++nodes>budget)return;if(i>=ps.length){let s=score();if(s>bestScore){bestScore=s;best=g.map(r=>r.slice())}return}let p=ps[i],placed=false;for(const m of ors(shapes[p.shape][1]))for(let r=0;r<=h-m.length;r++)for(let c=0;c<=w-m[0].length;c++)if(can(m,r,c)){placed=true;put(m,r,c,p);search(i+1);put(m,r,c,null)}if(!placed)search(i+1)}
-search(0);if(!best)best=g;const cells=best.flat().filter(Boolean).length,rows=best.filter(r=>r.every(Boolean)).length;$("#board").style.gridTemplateColumns=`repeat(${w},minmax(27px,1fr))`;$("#board").innerHTML=best.flat().map(v=>`<div class="cell ${v?"fill":""}">${v?v.name.replace("Component ","C"):""}</div>`).join("");$("#boardStats").innerHTML=`<div class="metric"><span>Score</span><b>${fmt(bestScore)}</b></div><div class="metric"><span>Rows</span><b>${rows}</b></div><div class="metric"><span>Filled</span><b>${cells}/${w*h}</b></div><div class="metric"><span>Empty</span><b>${w*h-cells}</b></div><div class="metric"><span>Search nodes</span><b>${fmt(nodes)}</b></div>`}
-$("#solve").onclick=solveBoard;$("#another").onclick=()=>{pieces=pieces.map(p=>({...p,shape:(p.shape+1+Math.floor(Math.random()*3))%shapes.length}));renderPieces();solveBoard()};$("#boardWidth").onchange=solveBoard;renderPieces();solveBoard();
+const survivorNames=[
+"Survivor 01","Survivor 02","Survivor 03","Survivor 04","Survivor 05","Survivor 06",
+"Survivor 07","Survivor 08","Survivor 09","Survivor 10","Survivor 11","Survivor 12"
+];
+const survivorFiles=[];
+for(let i=1;i<=12;i++)survivorFiles.push(`survivor-a-${String(i).padStart(2,"0")}.jpg`);
+for(let i=1;i<=12;i++)survivorFiles.push(`survivor-b-${String(i).padStart(2,"0")}.jpg`);
+const survivorGallery=$("#survivorGallery");
+function renderSurvivors(filter=""){
+  survivorGallery.innerHTML=survivorFiles.map((f,i)=>{
+    const name=(survivorNames[i%survivorNames.length]);
+    return `<article class="card survivor-card" data-name="${name.toLowerCase()}"><img src="assets/icons/${f}" alt="${name}"><div class="card-body"><h3>${name}</h3><p>Portrait from supplied survivor reference sheet</p></div></article>`
+  }).join("");
+  $$(".survivor-card").forEach(c=>c.style.display=c.dataset.name.includes(filter.toLowerCase())?"block":"none");
+}
+renderSurvivors();
+$("#survivorSearch").oninput=e=>renderSurvivors(e.target.value);
 
-function stats(){return{atk:num("#atk"),basePct:num("#basePct"),gearPct:num("#gearPct"),heroPct:num("#heroPct"),crit:num("#crit"),critDmg:num("#critDmg"),skillDmg:num("#skillDmg"),allDmg:num("#allDmg"),vuln:num("#vuln"),boss:num("#boss"),rate:num("#rate"),weaponPct:num("#weaponPct")}}
-function model(s){let atk=s.atk*(1+(s.basePct+s.gearPct+s.heroPct)/100),bonus=(1+s.allDmg/100)*(1+s.vuln/100)*(1+s.boss/100),crit=1+(Math.min(s.crit,300)/100)*Math.max(0,s.critDmg/100-1),hit=atk*(s.weaponPct/100)*bonus*crit;return{atk,hit,dps:hit*s.rate,skillDps:hit*(1+s.skillDmg/100)*s.rate,mult:hit/Math.max(1,s.atk)}}
-function renderDamage(){let r=model(stats());$("#damageResult").innerHTML=`<div class="metrics"><div class="metric"><span>Adjusted ATK</span><b>${fmt(r.atk)}</b></div><div class="metric"><span>Expected hit</span><b>${fmt(r.hit)}</b></div><div class="metric"><span>Estimated DPS</span><b>${fmt(r.dps)}</b></div><div class="metric"><span>Skill DPS</span><b>${fmt(r.skillDps)}</b></div><div class="metric"><span>Multiplier</span><b>${r.mult.toFixed(3)}×</b></div></div>`;$("#dashAtk").textContent=fmt(r.atk);$("#dashCrit").textContent=num("#crit")+"%";$("#dashSkill").textContent=num("#skillDmg")+"%";$("#dashMult").textContent=r.mult.toFixed(2)+"×"}
-$("#calc").onclick=renderDamage;$$("#damage input").forEach(x=>x.addEventListener("input",renderDamage));$("#save").onclick=()=>{localStorage.setItem("survivorProfile",JSON.stringify(stats()));alert("Profile saved on this device.")};$("#copyBuild").onclick=async()=>{await navigator.clipboard.writeText(JSON.stringify(stats()));alert("Profile JSON copied.")};$("#resetAll").onclick=()=>{localStorage.removeItem("survivorProfile");location.reload()};
-$("#applyGear").onclick=()=>{$("#gearPct").value=gear.reduce((s,[id])=>s+num("#g_"+id),0);renderDamage();alert("Gear ATK applied.")};$("#clearGear").onclick=()=>gear.forEach(([id])=>{$("#g_"+id).value=0;$("#s_"+id).value=0;$("#n_"+id).value=""});
+const sheets=[
+"sheet-01.jpg","sheet-02.jpg","sheet-03.jpg","sheet-04.jpg","sheet-05.jpg",
+"sheet-06.jpg","sheet-07.jpg","sheet-08.jpg","sheet-09.jpg"
+];
+$("#sheetGrid").innerHTML=sheets.map((s,i)=>`<figure class="sheet"><img src="assets/reference-sheets/${s}" alt="Supplied reference sheet ${i+1}" loading="lazy"><figcaption>Supplied reference sheet ${i+1}</figcaption></figure>`).join("");
 
-const compareKeys=[["atk","ATK",10000],["crit","Crit Rate %",20],["critDmg","Crit Damage %",200],["skillDmg","Skill Damage %",0],["allDmg","All Damage %",0],["vuln","Vulnerability %",0],["boss","Boss Damage %",0]];
-function makeFields(p){$("#"+p+"Fields").innerHTML=compareKeys.map(([k,n,v])=>`<label>${n}<input id="${p}_${k}" type="number" value="${v}"></label>`).join("")}
-makeFields("a");makeFields("b");function getBuild(p){let s={atk:+$(`#${p}_atk`).value||0,crit:+$(`#${p}_crit`).value||0,critDmg:+$(`#${p}_critDmg`).value||0,skillDmg:+$(`#${p}_skillDmg`).value||0,allDmg:+$(`#${p}_allDmg`).value||0,vuln:+$(`#${p}_vuln`).value||0,boss:+$(`#${p}_boss`).value||0,basePct:0,gearPct:0,heroPct:0,rate:1,weaponPct:100};return model(s)}
-$("#compareBtn").onclick=()=>{let a=getBuild("a"),b=getBuild("b"),d=Math.abs(a.dps-b.dps),w=a.dps===b.dps?"Tie":a.dps>b.dps?"Build A":"Build B";$("#compareResult").innerHTML=`<div class="resultbig">${w==="Tie"?"⚖️ Tie":"🏆 "+w}</div><p>Estimated DPS: <b>A ${fmt(a.dps)}</b> vs <b>B ${fmt(b.dps)}</b></p><p>Difference: ${fmt(d)} DPS</p>`};
-let saved=localStorage.getItem("survivorProfile");if(saved)try{let s=JSON.parse(saved);Object.entries(s).forEach(([k,v])=>{if($("#"+k))$("#"+k).value=v})}catch(e){}renderDamage();
+function calc(){
+  const dmg=+$("#critDmgCount").value||0, rate=+$("#critRateCount").value||0;
+  const dmgPct=dmg*10, ratePct=rate*10;
+  $("#critDmgResult").textContent=dmgPct+"%";$("#critRateResult").textContent=ratePct+"%";
+  $("#critDmgHero").textContent=dmgPct+"%";$("#critRateHero").textContent=ratePct+"%";
+}
+["#critDmgCount","#critRateCount"].forEach(s=>$(s).oninput=calc);
+$$(".checks input").forEach(x=>x.onchange=()=>{
+  const n=$$(".checks input:checked").reduce((a,b)=>a+(+b.dataset.bonus||0),0);
+  $("#buildScore").textContent=n+"%";
+});
+calc();
